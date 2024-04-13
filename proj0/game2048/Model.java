@@ -115,11 +115,11 @@ public class Model extends Observable {
         // changed local variable to true.
         board.setViewingPerspective(side);
         for (int i = 0; i < board.size(); i++) {
-            oneColumn(i);
+            if (oneColumn(i)) {
+                changed = true;
+            }
         }
         board.setViewingPerspective(Side.NORTH);
-        changed = true;
-
         checkGameOver();
         if (changed) {
             setChanged();
@@ -127,25 +127,31 @@ public class Model extends Observable {
         return changed;
     }
 
-    public void oneColumn(int col) {
+    public boolean oneColumn(int col) {
+        boolean a = false;
         for (int i = board.size() - 1; i > 0; i--) {
-            for (int j = i; j > -1; j--) {
+            for (int j = i - 1; j > -1; j--) {
                 if (board.tile(col, j) !=null) {
                     if (board.tile(col, i) == null) {
                         board.move(col, i, board.tile(col, j));
+                        i += 1;
+                        a = true;
                         break;
                     } else if (board.tile(col, i).value() == board.tile(col, j).value()) {
                         board.move(col, i, board.tile(col, j));
                         score += board.tile(col, i).value();
+                        a = true;
                         break;
                     } else {
                         board.move(col, i - 1, board.tile(col, j));
+                        a = true;
                         break;
                     }
 
                 }
             }
         }
+        return a;
     }
 
     /** Checks if the game is over and sets the gameOver variable
