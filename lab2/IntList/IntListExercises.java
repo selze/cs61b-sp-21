@@ -14,6 +14,7 @@ public class IntListExercises {
             head.first += c;
             head = head.rest;
         }
+        head.first += c;
     }
 
     /**
@@ -26,7 +27,9 @@ public class IntListExercises {
     public static void setToZeroIfMaxFEL(IntList L) {
         IntList p = L;
         while (p != null) {
-            if (firstDigitEqualsLastDigit(max(p))) {
+            int currentMax = max(p);
+            boolean firstEaualsLast = firstDigitEqualsLastDigit(currentMax);
+            if (firstEaualsLast) {
                 p.first = 0;
             }
             p = p.rest;
@@ -51,7 +54,7 @@ public class IntListExercises {
      */
     public static boolean firstDigitEqualsLastDigit(int x) {
         int lastDigit = x % 10;
-        while (x > 10) {
+        while (x > 9) {
             x = x / 10;
         }
         int firstDigit = x % 10;
@@ -67,9 +70,6 @@ public class IntListExercises {
      */
     public static boolean squarePrimes(IntList lst) {
         // Base Case: we have reached the end of the list
-        if (lst == null) {
-            return false;
-        }
 
         boolean currElemIsPrime = Primes.isPrime(lst.first);
 
@@ -77,6 +77,10 @@ public class IntListExercises {
             lst.first *= lst.first;
         }
 
-        return currElemIsPrime || squarePrimes(lst.rest);
+        if (lst.rest == null) {
+            return currElemIsPrime;
+        } else {
+            return squarePrimes(lst.rest)|| currElemIsPrime;
+        }
     }
 }
