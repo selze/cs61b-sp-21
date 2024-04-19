@@ -22,7 +22,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         return size;
     }
 
-    public void resize(int capacity) {
+    private void resize(int capacity) {
         T[] newItems = (T[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
             newItems[i] = items[(i + 1 + nextFirst) % length];
