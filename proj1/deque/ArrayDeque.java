@@ -12,8 +12,8 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     public ArrayDeque() {
         items = (Doom[]) new Object[8];
         size = 0;
-        nextFirst = 4;
-        nextLast = 5;
+        nextFirst = 3;
+        nextLast = 4;
         length = 8;
     }
 
@@ -22,10 +22,11 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public void resize(int capacity) {
-        Doom[] newitems = (Doom[]) new Object[capacity];
+        Doom[] newItems = (Doom[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
-            newitems[i] = items[(i + 1 + nextFirst) % length];
+            newItems[i] = items[(i + 1 + nextFirst) % length];
         }
+        items = newItems;
         nextFirst = capacity - 1;
         nextLast = size;
         length = capacity;
@@ -46,12 +47,17 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         if (size == 0) {
             return null;
         }
-        size -= 1;
-        while (length > 16 && size < length / 4) {
+
+        int pos = (nextFirst + 1) % length;
+        Doom removedItem = items[pos];
+        items[pos] = null;
+        nextFirst = pos;
+        size --;
+
+        if (length > 16 && size == length / 4) {
             resize(length / 2);
         }
-        Doom removedItem = items[(nextFirst + 1) % length];
-        nextFirst = (nextFirst + 1) % length;
+
         return removedItem;
     }
 
@@ -59,12 +65,16 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         if (size == 0) {
             return null;
         }
-        size -= 1;
-        while (length > 16 && size < length / 4) {
+
+        int pos = (nextLast - 1 + length) % length;
+        Doom removedItem = items[pos];
+        items[pos] = null;
+        nextLast = pos;
+        size --;
+
+        if (length > 16 && size == length / 4) {
             resize(length / 2);
         }
-        Doom removedItem = items[(nextLast - 1 + length) % length];
-        nextLast = (nextLast - 1 + length) % length;
         return removedItem;
     }
 
@@ -137,5 +147,12 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
             }
         }
         return true;
+    }
+
+    public void printDeque() {
+        for (Doom item : this) {
+            System.out.print(item + " ");
+        }
+        System.out.println();
     }
 }
