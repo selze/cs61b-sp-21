@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<Doom> implements Iterable<Doom>{
+public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     private int size;
     private  Node sentinel;
 
@@ -34,6 +34,7 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
 
     }
 
+    @Override
     public void addFirst(Doom item) {
         sentinel = new Node(item, sentinel.next).prev;
         size = size +1;
@@ -44,14 +45,12 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         size = size + 1;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         Node p = sentinel.next;
         while (p != sentinel) {
@@ -61,6 +60,7 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         System.out.println();
     }
 
+    @Override
     public Doom removeFirst() {
         if (size == 0) {
             return null;
@@ -72,6 +72,7 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         return x;
     }
 
+    @Override
     public Doom removeLast() {
         if (size == 0) {
             return null;
@@ -83,6 +84,7 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         return x;
     }
 
+    @Override
     public Doom get(int index) {
         if (index > size - 1 || index < 0) {
             return null;
@@ -134,14 +136,6 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         }
     }
 
-    public boolean contains(Doom item) {
-        for (Doom t : this) {
-            if (t.equals(item)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -151,12 +145,12 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         if (o == null || !(o instanceof LinkedListDeque)) {
             return false;
         }
-        LinkedListDeque other = (LinkedListDeque) o;
+        LinkedListDeque<?> other = (LinkedListDeque<?>) o;
         if (other.size != this.size()) {
             return false;
         }
-        for (Doom item : this) {
-            if (!other.contains(item)) {
+        for (int i = 0; i < size; i++) {
+            if (other.get(i) != get(i)) {
                 return false;
             }
         }

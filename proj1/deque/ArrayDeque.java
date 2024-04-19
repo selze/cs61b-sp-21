@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Doom> implements Iterable<Doom>{
+public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     private Doom[] items;
     private int size;
     private int nextFirst;
@@ -17,6 +17,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         length = 8;
     }
 
+    @Override
     public int size() {
         return size;
     }
@@ -32,10 +33,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         length = capacity;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public Doom get(int index) {
         if (index < 0 || index > size - 1) {
             return null;
@@ -43,6 +41,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         return items[(nextFirst + 1 + index) % length];
     }
 
+    @Override
     public Doom removeFirst() {
         if (size == 0) {
             return null;
@@ -61,6 +60,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         return removedItem;
     }
 
+    @Override
     public Doom removeLast() {
         if (size == 0) {
             return null;
@@ -78,6 +78,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         return removedItem;
     }
 
+    @Override
     public void addLast(Doom item) {
         if (size == length) {
             resize(length * 2);
@@ -87,6 +88,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         nextLast = (nextLast + 1) % length;
     }
 
+    @Override
     public  void addFirst(Doom item) {
         if (size == length) {
             resize(length * 2);
@@ -112,20 +114,12 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         }
 
         public Doom next() {
-            Doom returnItem = items[(nextFirst + wizpos + 1) % length];
+            Doom returnItem = get(wizpos);
             wizpos += 1;
             return returnItem;
         }
     }
 
-    public boolean contains(Doom x) {
-        for (Doom item : this) {
-            if (item.equals(x)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -136,19 +130,20 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
             return false;
         }
 
-        ArrayDeque other = (ArrayDeque) o;
+        ArrayDeque<?> other = (ArrayDeque<?>) o;
 
         if (other.size() != size) {
             return false;
         }
-        for (Doom item : this) {
-            if (!other.contains(item)) {
+        for (int i = 0; i < size; i++) {
+            if (other.get(i) != get(i)) {
                 return false;
             }
         }
         return true;
     }
 
+    @Override
     public void printDeque() {
         for (Doom item : this) {
             System.out.print(item + " ");
