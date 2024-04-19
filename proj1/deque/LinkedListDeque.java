@@ -148,18 +148,19 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>{
         if (this == o) {
             return true;
         }
-        if (o instanceof LinkedListDeque other) {
-            if (other.size() != this.size()) {
+        if (o == null || !(o instanceof LinkedListDeque)) {
+            return false;
+        }
+        LinkedListDeque other = (LinkedListDeque) o;
+        if (other.size != this.size()) {
+            return false;
+        }
+        for (Doom item : this) {
+            if (!other.contains(item)) {
                 return false;
             }
-            for (Doom item : this) {
-                if (!other.contains(item)) {
-                    return false;
-                }
-            }
-            return true;
         }
-        return false;
+        return true;
     }
 
 }

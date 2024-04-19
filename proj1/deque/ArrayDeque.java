@@ -116,20 +116,20 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         if (this == o) {
             return true;
         }
-        if (o instanceof ArrayDeque other) {
-            if (other.size() != size) {
+        if (o == null || !(o instanceof ArrayDeque)) {
+            return false;
+        }
+
+        ArrayDeque other = (ArrayDeque) o;
+
+        if (other.size() != size) {
+            return false;
+        }
+        for (Doom item : this) {
+            if (!other.contains(item)) {
                 return false;
             }
-            for (Doom item : this) {
-                if (!other.contains(item)) {
-                    return false;
-                }
-            }
-            return true;
         }
-        return false;
+        return true;
     }
-
-
-
 }
