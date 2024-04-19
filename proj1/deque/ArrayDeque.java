@@ -24,10 +24,10 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     public void resize(int capacity) {
         Doom[] newitems = (Doom[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
-            newitems[(i + 1 + nextFirst) % capacity] = items[(i + 1 + nextFirst) % length];
+            newitems[i] = items[(i + 1 + nextFirst) % length];
         }
-        nextFirst %= capacity;
-        nextLast %= capacity;
+        nextFirst = capacity - 1;
+        nextLast = size;
         length = capacity;
     }
 
@@ -63,13 +63,13 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
         while (length > 16 && size < length / 4) {
             resize(length / 2);
         }
-        Doom removedItem = items[(nextLast - 1) % length];
-        nextLast = (nextLast - 1) % length;
+        Doom removedItem = items[(nextLast - 1 + length) % length];
+        nextLast = (nextLast - 1 + length) % length;
         return removedItem;
     }
 
     public void addLast(Doom item) {
-        if (size == length - 1) {
+        if (size == length) {
             resize(length * 2);
         }
         size += 1;
@@ -78,12 +78,12 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public  void addFirst(Doom item) {
-        if (size == length - 1) {
+        if (size == length) {
             resize(length * 2);
         }
         size += 1;
         items[nextFirst] = item;
-        nextFirst = (nextFirst - 1) % length;
+        nextFirst = (nextFirst - 1 + length) % length;
     }
 
     public Iterator<Doom> iterator() {
