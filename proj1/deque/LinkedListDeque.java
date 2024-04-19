@@ -116,19 +116,19 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     private class LinkedListDequeIterator implements Iterator<T> {
-        private Node wizpos;
+        private int wizpos;
         LinkedListDequeIterator() {
-            wizpos = sentinel.next;
+            wizpos = 0;
         }
 
         public boolean hasNext() {
-            return (wizpos == sentinel);
+            return wizpos < size;
         }
 
         public T next() {
-            T returnItem = wizpos.item;
-            wizpos = wizpos.next;
-            return  returnItem;
+            T returnItem = get(wizpos);
+            wizpos += 1;
+            return returnItem;
         }
     }
 
@@ -141,12 +141,12 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         if (o == null || !(o instanceof Deque)) {
             return false;
         }
-        Deque other = (Deque) o;
+        Deque<T> other = (Deque<T>) o;
         if (other.size() != size) {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            if (other.get(i) != get(i)) {
+            if (!(other.get(i).equals(get(i)))) {
                 return false;
             }
         }

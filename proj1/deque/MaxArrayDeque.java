@@ -2,20 +2,20 @@ package deque;
 
 import java.util.Comparator;
 
-public class MaxArrayDeque<Doom> extends ArrayDeque<Doom> {
-    private Comparator<Doom> com;
+public class MaxArrayDeque<T> extends ArrayDeque<T> {
+    private Comparator<T> com;
 
-    public MaxArrayDeque(Comparator<Doom> c) {
+    public MaxArrayDeque(Comparator<T> c) {
         super();
         com = c;
     }
 
-    public Doom max() {
+    public T max() {
         if (isEmpty()) {
             return null;
         }
-        Doom maxItem = get(0);
-        for (Doom item : this) {
+        T maxItem = get(0);
+        for (T item : this) {
             if (com.compare(item, maxItem) > 0) {
                 maxItem = item;
             }
@@ -23,12 +23,12 @@ public class MaxArrayDeque<Doom> extends ArrayDeque<Doom> {
         return maxItem;
     }
 
-    public Doom max(Comparator<Doom> c) {
+    public T max(Comparator<T> c) {
         if (isEmpty()) {
             return null;
         }
-        Doom maxItem = get(0);
-        for (Doom item : this) {
+        T maxItem = get(0);
+        for (T item : this) {
             if (c.compare(item, maxItem) > 0) {
                 maxItem = item;
             }

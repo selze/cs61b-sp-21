@@ -2,15 +2,15 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
-    private Doom[] items;
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
+    private T[] items;
     private int size;
     private int nextFirst;
     private int nextLast;
     private int length;
 
     public ArrayDeque() {
-        items = (Doom[]) new Object[8];
+        items = (T[]) new Object[8];
         size = 0;
         nextFirst = 3;
         nextLast = 4;
@@ -23,7 +23,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     public void resize(int capacity) {
-        Doom[] newItems = (Doom[]) new Object[capacity];
+        T[] newItems = (T[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
             newItems[i] = items[(i + 1 + nextFirst) % length];
         }
@@ -34,7 +34,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     @Override
-    public Doom get(int index) {
+    public T get(int index) {
         if (index < 0 || index > size - 1) {
             return null;
         }
@@ -42,13 +42,13 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     @Override
-    public Doom removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         }
 
         int pos = (nextFirst + 1) % length;
-        Doom removedItem = items[pos];
+        T removedItem = items[pos];
         items[pos] = null;
         nextFirst = pos;
         size--;
@@ -61,13 +61,13 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     @Override
-    public Doom removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
 
         int pos = (nextLast - 1 + length) % length;
-        Doom removedItem = items[pos];
+        T removedItem = items[pos];
         items[pos] = null;
         nextLast = pos;
         size--;
@@ -79,7 +79,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     @Override
-    public void addLast(Doom item) {
+    public void addLast(T item) {
         if (size == length) {
             resize(length * 2);
         }
@@ -89,7 +89,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     }
 
     @Override
-    public  void addFirst(Doom item) {
+    public  void addFirst(T item) {
         if (size == length) {
             resize(length * 2);
         }
@@ -98,11 +98,11 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
         nextFirst = (nextFirst - 1 + length) % length;
     }
 
-    public Iterator<Doom> iterator() {
+    public Iterator<T> iterator() {
         return new ArrayDequeIterator();
     }
 
-    private class ArrayDequeIterator implements Iterator<Doom> {
+    private class ArrayDequeIterator implements Iterator<T> {
         private int wizpos;
 
         ArrayDequeIterator() {
@@ -113,8 +113,8 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
             return wizpos < size;
         }
 
-        public Doom next() {
-            Doom returnItem = get(wizpos);
+        public T next() {
+            T returnItem = get(wizpos);
             wizpos += 1;
             return returnItem;
         }
@@ -130,13 +130,13 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
             return false;
         }
 
-        Deque other = (Deque) o;
+        Deque<T> other = (Deque<T>) o;
 
         if (other.size() != size) {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            if (other.get(i) != get(i)) {
+            if (!(other.get(i).equals(get(i)))) {
                 return false;
             }
         }
@@ -145,7 +145,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
 
     @Override
     public void printDeque() {
-        for (Doom item : this) {
+        for (T item : this) {
             System.out.print(item + " ");
         }
         System.out.println();
