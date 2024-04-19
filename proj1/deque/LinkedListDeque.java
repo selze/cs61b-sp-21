@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<Doom> {
+public class LinkedListDeque<Doom> implements Iterable<Doom>{
     private int size;
     private  Node sentinel;
 
@@ -45,11 +45,7 @@ public class LinkedListDeque<Doom> {
     }
 
     public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return size == 0;
     }
 
     public int size() {
@@ -57,7 +53,12 @@ public class LinkedListDeque<Doom> {
     }
 
     public void printDeque() {
-
+        Node p = sentinel.next;
+        while (p != sentinel) {
+            System.out.print(p.item + " ");
+            p = p.next;
+        }
+        System.out.println();
     }
 
     public Doom removeFirst() {
@@ -83,14 +84,82 @@ public class LinkedListDeque<Doom> {
     }
 
     public Doom get(int index) {
-        return null;
+        if (index > size - 1 || index < 0) {
+            return null;
+        }
+        Node p = sentinel.next;
+        for (int i = 0 ; i < index; i++) {
+            p = p.next;
+        }
+        return p.item;
     }
 
-    public Iterator<LinkedListDeque> iterator() {
-        return null;
+    public Doom getRecursive(int index) {
+        if (index > size - 1 || index <0) {
+            return null;
+        }
+        return getRecursiveHelper(sentinel.next, index);
     }
 
+    private Doom getRecursiveHelper(Node node, int index) {
+        if (index == 0) {
+            return node.item;
+        }
+
+        return getRecursiveHelper(node.next, index - 1);
+    }
+
+    public Iterator<Doom> iterator() {
+        return new LinkedListDequeIterator();
+    }
+
+    private class LinkedListDequeIterator implements Iterator<Doom> {
+        private Node wizpos;
+        public LinkedListDequeIterator() {
+            wizpos = sentinel.next;
+        }
+
+        public boolean hasNext() {
+            if (wizpos.next == sentinel) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        public Doom next() {
+            Doom returnItem = wizpos.item;
+            wizpos = wizpos.next;
+            return  returnItem;
+        }
+    }
+
+    public boolean contains(Doom item) {
+        for (Doom t : this) {
+            if (t.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
-        return true;
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof LinkedListDeque other) {
+            if (other.size() != this.size()) {
+                return false;
+            }
+            for (Doom item : this) {
+                if (!other.contains(item)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
+
 }
