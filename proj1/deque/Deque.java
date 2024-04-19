@@ -1,21 +1,21 @@
 package deque;
 
-public interface Deque<Doom> {
-    public void addFirst(Doom item);
+public interface Deque<T> {
+    void addFirst(T item);
 
-    public void addLast(Doom item);
+    void addLast(T item);
 
-    default public boolean isEmpty() {
+    default boolean isEmpty() {
         return size() == 0;
     }
 
-    public int size();
+    int size();
 
-    public void printDeque();
+    void printDeque();
 
-    public Doom removeFirst();
+    T removeFirst();
 
-    public Doom removeLast();
+    T removeLast();
 
-    public Doom get(int index);
+    T get(int index);
 }

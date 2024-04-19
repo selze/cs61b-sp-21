@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Comparator;
 
-public class MaxArrayDeque<Doom> extends ArrayDeque<Doom>{
+public class MaxArrayDeque<Doom> extends ArrayDeque<Doom> {
     private Comparator<Doom> com;
 
     public MaxArrayDeque(Comparator<Doom> c) {

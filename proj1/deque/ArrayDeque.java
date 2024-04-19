@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
+public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom> {
     private Doom[] items;
     private int size;
     private int nextFirst;
@@ -51,7 +51,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         Doom removedItem = items[pos];
         items[pos] = null;
         nextFirst = pos;
-        size --;
+        size--;
 
         if (length > 16 && size == length / 4) {
             resize(length / 2);
@@ -70,7 +70,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         Doom removedItem = items[pos];
         items[pos] = null;
         nextLast = pos;
-        size --;
+        size--;
 
         if (length > 16 && size == length / 4) {
             resize(length / 2);
@@ -102,10 +102,10 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         return new ArrayDequeIterator();
     }
 
-    private class ArrayDequeIterator implements Iterator<Doom>{
-        public int wizpos;
+    private class ArrayDequeIterator implements Iterator<Doom> {
+        private int wizpos;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             wizpos = 0;
         }
 
@@ -126,11 +126,11 @@ public class ArrayDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof ArrayDeque)) {
+        if (o == null || !(o instanceof Deque)) {
             return false;
         }
 
-        ArrayDeque<?> other = (ArrayDeque<?>) o;
+        Deque other = (Deque) o;
 
         if (other.size() != size) {
             return false;

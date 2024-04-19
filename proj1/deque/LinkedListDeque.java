@@ -2,17 +2,17 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     private int size;
     private  Node sentinel;
 
     private class Node {
-        public Node next;
-        public Node prev;
-        public Doom item;
+        private Node next;
+        private Node prev;
+        private T item;
 
         /** constructor, add i to the first of n. */
-        public Node(Doom i, Node n) {
+        Node(T i, Node n) {
             this.item = i;
             this.next = n;
             this.prev = n.prev;
@@ -20,7 +20,7 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
             n.prev = this;
         }
 
-        public  Node() {
+        Node() {
             this.next = this;
             this.prev = this;
             this.item = null;
@@ -35,12 +35,12 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     }
 
     @Override
-    public void addFirst(Doom item) {
+    public void addFirst(T item) {
         sentinel = new Node(item, sentinel.next).prev;
-        size = size +1;
+        size = size + 1;
     }
 
-    public void  addLast(Doom item) {
+    public void  addLast(T item) {
         sentinel = new Node(item, sentinel).next;
         size = size + 1;
     }
@@ -61,11 +61,11 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     }
 
     @Override
-    public Doom removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         }
-        Doom x = sentinel.next.item;
+        T x = sentinel.next.item;
         sentinel.next = sentinel.next.next;
         sentinel.next.prev = sentinel;
         size -= 1;
@@ -73,11 +73,11 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     }
 
     @Override
-    public Doom removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
-        Doom x = sentinel.prev.item;
+        T x = sentinel.prev.item;
         sentinel.prev = sentinel.prev.prev;
         sentinel.prev.next = sentinel;
         size -= 1;
@@ -85,25 +85,25 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
     }
 
     @Override
-    public Doom get(int index) {
+    public T get(int index) {
         if (index > size - 1 || index < 0) {
             return null;
         }
         Node p = sentinel.next;
-        for (int i = 0 ; i < index; i++) {
+        for (int i = 0; i < index; i++) {
             p = p.next;
         }
         return p.item;
     }
 
-    public Doom getRecursive(int index) {
-        if (index > size - 1 || index <0) {
+    public T getRecursive(int index) {
+        if (index > size - 1 || index < 0) {
             return null;
         }
         return getRecursiveHelper(sentinel.next, index);
     }
 
-    private Doom getRecursiveHelper(Node node, int index) {
+    private T getRecursiveHelper(Node node, int index) {
         if (index == 0) {
             return node.item;
         }
@@ -111,26 +111,22 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         return getRecursiveHelper(node.next, index - 1);
     }
 
-    public Iterator<Doom> iterator() {
+    public Iterator<T> iterator() {
         return new LinkedListDequeIterator();
     }
 
-    private class LinkedListDequeIterator implements Iterator<Doom> {
+    private class LinkedListDequeIterator implements Iterator<T> {
         private Node wizpos;
-        public LinkedListDequeIterator() {
+        LinkedListDequeIterator() {
             wizpos = sentinel.next;
         }
 
         public boolean hasNext() {
-            if (wizpos.next == sentinel) {
-                return false;
-            } else {
-                return true;
-            }
+            return (wizpos == sentinel);
         }
 
-        public Doom next() {
-            Doom returnItem = wizpos.item;
+        public T next() {
+            T returnItem = wizpos.item;
             wizpos = wizpos.next;
             return  returnItem;
         }
@@ -142,11 +138,11 @@ public class LinkedListDeque<Doom> implements Iterable<Doom>, Deque<Doom>{
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof LinkedListDeque)) {
+        if (o == null || !(o instanceof Deque)) {
             return false;
         }
-        LinkedListDeque<?> other = (LinkedListDeque<?>) o;
-        if (other.size != this.size()) {
+        Deque other = (Deque) o;
+        if (other.size() != size) {
             return false;
         }
         for (int i = 0; i < size; i++) {
