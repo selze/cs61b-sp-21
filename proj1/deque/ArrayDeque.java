@@ -43,6 +43,9 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public Doom removeFirst() {
+        if (size == 0) {
+            return null;
+        }
         size -= 1;
         while (length > 16 && size < length / 4) {
             resize(length / 2);
@@ -53,6 +56,9 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public Doom removeLast() {
+        if (size == 0) {
+            return null;
+        }
         size -= 1;
         while (length > 16 && size < length / 4) {
             resize(length / 2);
@@ -63,7 +69,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public void addLast(Doom item) {
-        if (size == length) {
+        if (size == length - 1) {
             resize(length * 2);
         }
         size += 1;
@@ -72,7 +78,7 @@ public class ArrayDeque<Doom> implements Iterable<Doom>{
     }
 
     public  void addFirst(Doom item) {
-        if (size == length) {
+        if (size == length - 1) {
             resize(length * 2);
         }
         size += 1;
