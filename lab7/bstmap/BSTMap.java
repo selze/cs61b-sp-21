@@ -4,7 +4,7 @@ import edu.princeton.cs.algs4.BST;
 
 import java.util.*;
 
-public class BSTMap<K extends Comparable, V> implements Map61B<K, V>{
+public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
     private Node root;                      // root of BST
 
     private class Node {
@@ -73,7 +73,7 @@ public class BSTMap<K extends Comparable, V> implements Map61B<K, V>{
         root = put(root, key, val);
     }
 
-    public Node put(Node x, K key, V val) {
+    private Node put(Node x, K key, V val) {
         if (x == null) return new Node(key, val, 1);
         int cmp = key.compareTo(x.key);
         if (cmp < 0) {
@@ -128,11 +128,11 @@ public class BSTMap<K extends Comparable, V> implements Map61B<K, V>{
         return x;
     }
 
-    public boolean isEmpty() {
+    private boolean isEmpty() {
         return size() == 0;
     }
 
-    public void removeMin() {
+    private void removeMin() {
         if (isEmpty()) throw new NoSuchElementException("Symbol table underflow");
         root = removeMin(root);
     }
@@ -186,6 +186,13 @@ public class BSTMap<K extends Comparable, V> implements Map61B<K, V>{
             pushLeft(current.right);
             return (K) current.key;
         }
+    }
+
+    public void printInOrder() {
+        for (K key : this) {
+            System.out.print(key + " ");
+        }
+        System.out.println();
     }
 }
 
