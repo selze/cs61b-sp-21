@@ -30,7 +30,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private double maxLoad = 0.75;
     private int n;                        //number of key-value pairs
     private int m;                        //hash table size
-    Set<K> keys;
+    private Set<K> keys;
     /** Constructors */
     public MyHashMap() {
         this(INIT_CAPACITY);
