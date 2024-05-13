@@ -52,9 +52,9 @@ public class Commit implements Serializable {
     }
 
     /** Check if the commit has the specified reference to file. */
-    public boolean hasFile(String hash) {
+    public boolean hasVersion(String hash, String name) {
         for (String file : files.keySet()) {
-            if (files.get(file).equals(hash)) {
+            if (files.get(file).equals(hash) && name.equals(file)) {
                 return true;
             }
         }

@@ -15,18 +15,28 @@ public class Main {
         }
         String firstArg = args[0];
         switch(firstArg) {
-            case "init":
-                Repository.setUpRepository();
+            case "init": {
+                Repository repo = new Repository();
+                repo.setUpRepository();
+                repo.exit();
                 break;
-            case "add":
+            }
+            case "add": {
                 Repository.checkRepositroy();
                 validateNumArgs(args, 2);
-                Repository.addFile(args[1]);
+                Repository repo = new Repository();
+                repo.addFile(args[1]);
+                repo.exit();
                 break;
-            case "commit":
+            }
+            case "commit": {
                 Repository.checkRepositroy();
                 validateNumArgs(args, 2);
-
+                Repository repo = new Repository();
+                repo.commit(args[1]);
+                repo.exit();
+                break;
+            }
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

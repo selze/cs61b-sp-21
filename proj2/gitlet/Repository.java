@@ -20,18 +20,17 @@ public class Repository {
      * variable is used. We've provided two examples for you.
      */
 
-    LinkedList<String> blobs;
-    HashMap<String, Commit> commits;
+    LinkedList<String> blobs = new LinkedList<>();
+    HashMap<String, Commit> commits = new HashMap<>();
+    String currentBranch;
 
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-    /** The commits' directory. */
-    public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
     /** File containing the reference of current HEAD. */
-    public static File HEAD = join(GITLET_DIR, "HEAD");
+    public static final File HEAD = join(GITLET_DIR, "HEAD");
 
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
 
@@ -39,25 +38,34 @@ public class Repository {
     /** staging area */
     public static final File INDEX_DIR = join(GITLET_DIR, "index");
 
+    public static final File BLOBS_MAP = join(GITLET_DIR, "blobs_map");
+    public static final File COMMITS_MAP = join(GITLET_DIR, "commits_map");
+
     public Repository() {
-        blobs = (LinkedList<String>) plainFilenamesIn(BLOBS_DIR);
-        LinkedList<String> commitIDs = (LinkedList<String>) plainFilenamesIn(COMMITS_DIR);
-        for (String commitID : commitIDs) {
-            commits.put(commitID, Commit.fromFile(commitID));
+        if (GITLET_DIR.exists()) {
+            blobs = readObject(BLOBS_MAP, LinkedList.class);
+            commits = readObject(COMMITS_MAP, HashMap.class);
+            currentBranch = readObject(HEAD, String.class);
         }
     }
-    public static void setUpRepository() {
+    public void setUpRepository() {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
-            COMMITS_DIR.mkdir();
             INDEX_DIR.mkdir();
             BRANCHES_DIR.mkdir();
-            String hash = writeCommit(new Commit("initial commit", new Date(0).toString(), new TreeMap<>(), null, null));
+            Commit initial = new Commit("initial commit", new Date(0).toString(), new TreeMap<>(), null, null);
+            String hash = writeCommit(initial);
             setUpBranch("master", hash);
-            setHEAD("master");
+            currentBranch = "master";
         } else {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
         }
+    }
+
+    public void exit() {
+        writeObject(BLOBS_MAP, blobs);
+        writeObject(COMMITS_MAP, commits);
+        writeObject(HEAD, currentBranch);
     }
 
     public static void checkRepositroy() {
@@ -77,10 +85,9 @@ public class Repository {
         }
     }
 
-    public static String writeCommit(Commit newCommit) {
+    public String writeCommit(Commit newCommit) {
         String commitHash = sha1(serialize(newCommit));
-        File commitFile = join(COMMITS_DIR, commitHash);
-        writeObject(commitFile, newCommit);
+        commits.put(commitHash, newCommit);
         return commitHash;
     }
 
@@ -89,10 +96,8 @@ public class Repository {
         writeContents(branch, commitHash);
     }
 
-    public static void setHEAD(String name) {
-        File branch = join(BRANCHES_DIR, name);
-        if (!branch.exists()) return;
-        writeObject(HEAD, branch);
+    private void setHEAD(String name) {
+        currentBranch = name;
     }
 
     /** Return the reference of the branch. */
@@ -101,13 +106,13 @@ public class Repository {
         return readContentsAsString(f);
     }
 
-    public static Commit getCurrentCommit() {
-        File f = readObject(HEAD, File.class);
+    private Commit getCurrentCommit() {
+        File f = join(BRANCHES_DIR, currentBranch);
         String commitID = readContentsAsString(f);
-        return Commit.fromFile(commitID);
+        return commits.get(commitID);
     }
 
-    public static String getCurrrentCommitHash() {
+    private static String getCurrrentCommitHash() {
         File f = readObject(HEAD, File.class);
         return readContentsAsString(f);
     }
@@ -116,13 +121,13 @@ public class Repository {
         return sha1(readContentsAsString(file));
     }
 
-    public static void addFile(String name) {
+    public void addFile(String name) {
         checkFile(name);
         File fileToBeAdded = join(CWD, name);
         File stageAddress = join(INDEX_DIR, name);
         String fileHash = getFileHash(fileToBeAdded);
         Commit currentCommit = getCurrentCommit();
-        if (currentCommit.hasFile(fileHash)) {
+        if (currentCommit.hasVersion(fileHash, name)) {
             stageAddress.delete();
         } else {
             writeContents(stageAddress, readContentsAsString(fileToBeAdded));
@@ -130,18 +135,11 @@ public class Repository {
     }
 
     /** add the blob to the blob directory */
-    public static void addBlob(File f) {
-        String hash = sha1(getFileHash(f));
-        LinkedList<String> blobs = (LinkedList<String>) plainFilenamesIn(BLOBS_DIR);
-        if (blobs != null) {
-            for (String name : blobs) {
-                if (name.equals(hash)) {
-                    return;
-                }
-            }
-        }
+    public void addBlob(File f) {
+        String hash = getFileHash(f);
         File blobFile = join(BLOBS_DIR, hash);
         writeContents(blobFile, readContentsAsString(f));
+        blobs.add(hash);
     }
 
     public static void unstageFile(String name) {
@@ -154,11 +152,25 @@ public class Repository {
         TreeMap<String, String> files = previousCommit.getFiles();
         ArrayList<String> stagedFiles = (ArrayList<String>) plainFilenamesIn(INDEX_DIR);
         for (String file : stagedFiles) {
-            File f = join(CWD, file);
+            File f = join(INDEX_DIR, file);
             String hash = getFileHash(f);
             files.put(file, hash);
-
+            if (!blobs.contains(hash)) {
+                addBlob(f);
+            }
+            f.delete();
         }
+        Commit commit = new Commit(message, new Date().toString(), files, parent1, null);
+        String commitID = writeCommit(commit);
+        setUpBranch(currentBranch, commitID);
+    }
 
+    public void remove(String name) {
+        Commit headCommit = getCurrentCommit();
+        File CWDFile = join(CWD, name);
+        File stageFile = join(INDEX_DIR, name);
+        if (CWDFile.exists()) {
+            CWDFile.delete();
+        }
     }
 }
