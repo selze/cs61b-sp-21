@@ -18,23 +18,75 @@ public class Main {
             case "init": {
                 Repository repo = new Repository();
                 repo.setUpRepository();
-                repo.exit();
                 break;
             }
             case "add": {
                 Repository.checkRepositroy();
-                validateNumArgs(args, 2);
+                validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.addFile(args[1]);
-                repo.exit();
                 break;
             }
             case "commit": {
                 Repository.checkRepositroy();
-                validateNumArgs(args, 2);
+                validateNumArgs(args, 2, "Please enter a commit message.");
                 Repository repo = new Repository();
                 repo.commit(args[1]);
-                repo.exit();
+                break;
+            }
+            case "log": {
+                Repository.checkRepositroy();
+                Repository repo = new Repository();
+                repo.log();
+                break;
+            }
+            case "rm": {
+                Repository.checkRepositroy();
+                validateNumArgs(args, 2, "Incorrect operands.");
+                Repository repo = new Repository();
+                repo.remove(args[1]);
+                break;
+            }
+            case "global-log": {
+                Repository.checkRepositroy();
+                Repository repo = new Repository();
+                repo.global_log();
+                break;
+            }
+            case "find": {
+                Repository.checkRepositroy();
+                validateNumArgs(args, 2, "Incorrect operands.");
+                Repository repo = new Repository();
+                repo.find(args[1]);
+                break;
+            }
+            case "status": {
+                Repository.checkRepositroy();
+                Repository repo = new Repository();
+                repo.status();
+                break;
+            }
+            case "checkout": {
+                break;
+            }
+            case "branch": {
+                Repository.checkRepositroy();
+                validateNumArgs(args, 2, "Incorrect operands.");
+                Repository repo = new Repository();
+                repo.branch(args[1]);
+                break;
+            }
+            case "rm-branch": {
+                Repository.checkRepositroy();
+                validateNumArgs(args, 2, "Incorrect operands.");
+                Repository repo = new Repository();
+                repo.rm_branch(args[1]);
+                break;
+            }
+            case "reset": {
+                break;
+            }
+            case "merge": {
                 break;
             }
             default:
@@ -43,10 +95,11 @@ public class Main {
         }
     }
 
-    public static void validateNumArgs(String[] args, int n) {
+    public static void validateNumArgs(String[] args, int n, String message) {
         if (args.length != n) {
-            System.out.println("Incorrect operands.");
+            System.out.println(message);
             System.exit(0);
         }
     }
+
 }
