@@ -105,7 +105,7 @@ public class Main {
             case "merge": {
                 Repository.checkRepositroy();
                 Repository repo = new Repository();
-                repo.reset(args[1]);
+                repo.merge(args[1]);
                 break;
             }
             default:
