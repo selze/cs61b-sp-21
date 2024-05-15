@@ -67,6 +67,18 @@ public class Main {
                 break;
             }
             case "checkout": {
+                Repository.checkRepositroy();
+                Repository repo = new Repository();
+                if (args.length == 2) {
+                    repo.checkoutBranch(args[1]);
+                } else if (args.length == 3 && args[1].equals("--")) {
+                    repo.checkoutFile(args[2]);
+                } else if (args.length == 4 && args[2].equals("--")) {
+                    repo.checkout(args[1], args[3]);
+                } else {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
                 break;
             }
             case "branch": {
@@ -84,6 +96,10 @@ public class Main {
                 break;
             }
             case "reset": {
+                Repository.checkRepositroy();
+                validateNumArgs(args, 2, "Incorrect operands.");
+                Repository repo = new Repository();
+                repo.reset(args[1]);
                 break;
             }
             case "merge": {

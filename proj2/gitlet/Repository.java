@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.time.Year;
 import java.util.*;
 
 import static gitlet.Utils.*;
@@ -154,21 +155,31 @@ public class Repository {
             System.exit(0);
         }
         Commit previousCommit = getCurrentCommit();
-        String parent1 = previousCommit.toHash();
-        TreeMap<String, String> files = previousCommit.getFiles();
+        commitHelper(message, previousCommit, null);
+    }
+
+    private void commitHelper(String message, Commit commit1, Commit commit2) {
+        TreeMap<String, String> files = commit1.getFiles();
+        String parent1 = commit1.toHash();
+        String parent2 = null;
+        if (commit2 != null) {
+            files.putAll(commit2.getFiles());
+            parent2 = commit2.toHash();
+        }
         for (String file : addStage.keySet()) {
             files.put(file, addStage.get(file));
         }
         for (String file : removeStage) {
             files.remove(file);
         }
-        Commit commit = new Commit(message, new Date(), files, parent1, null);
-        String commitID = commit.toHash();
+        Commit newCommit = new Commit(message, new Date(), files, parent1, parent2);
+        String commitID = newCommit.toHash();
         setUpBranch(currentBranch, commitID);
         addStage.clear();
         removeStage.clear();
         saveStageArea();
     }
+
 
     private boolean isTrackedByCurrentCommit(String name, File file) {
         String fileID = getFileHash(file);
@@ -328,8 +339,33 @@ public class Repository {
     }
 
 
-    public void checkout(String commitID, String name) {
+
+    private String hasCommitAbbreviate(String ID) {
+        LinkedList<String> commits = (LinkedList<String>) plainFilenamesIn(COMMITS_DIR);
+        for (String commit : commits) {
+            if (commit.substring(0, 7).equals(ID.substring(0, 7))) {
+                return commit;
+            }
+        }
+        return null;
+    }
+
+    public void checkout(String ID, String name) {
+        String commitID;
+        if (ID.length() != 40) {
+            commitID = hasCommitAbbreviate(ID);
+            if (commitID == null) {
+                System.out.println("No commit with that id exists.");
+                System.exit(0);
+            }
+        } else {
+            commitID = ID;
+        }
         Commit commit = getCommit(commitID);
+        checkoutFileHelper(commit, name);
+    }
+
+    private void checkoutFileHelper(Commit commit, String name) {
         if (!commit.hasFile(name)) {
             System.out.println("File does not exist in that commit.");
             System.exit(0);
@@ -377,12 +413,180 @@ public class Repository {
         saveStageArea();
     }
 
-    public void reset(String commitID) {
+    public void reset(String ID) {
+        String commitID;
+        if (ID.length() != 40) {
+            commitID = hasCommitAbbreviate(ID);
+            if (commitID == null) {
+                System.out.println("No commit with that id exists.");
+                System.exit(0);
+            }
+        } else {
+            commitID = ID;
+        }
         checkoutBranchHelper(commitID);
         setUpBranch(currentBranch, commitID);
     }
 
-    public void merge(String branch) {
+    private class CommitGraph {
+        private Map<String, List<String>> adjList = new HashMap<>();
 
+        public void addCommit(String commit, List<String> parents) {
+            adjList.put(commit, parents);
+        }
+
+        public String findLatestCommonAncestor(String start1, String start2) {
+            Set<String> visited1 = new HashSet<>();
+            Set<String> visited2 = new HashSet<>();
+            Queue<String> queue1 = new LinkedList<>();
+            Queue<String> queue2 = new LinkedList<>();
+
+
+            visited1.add(start1);
+            visited2.add(start2);
+            queue1.offer(start1);
+            queue2.offer(start2);
+
+            while (!(queue1.isEmpty()) && !(queue2.isEmpty())) {
+                String result = processQueue(queue1, visited1, visited2);
+                if (result != null) return result;
+                result = processQueue(queue2, visited2, visited1);
+                if (result != null) return result;
+            }
+            return null;
+        }
+
+        private String processQueue(Queue<String> queue, Set<String> visited, Set<String> othervisited) {
+            if (!queue.isEmpty()) {
+                String current = queue.poll();
+                List<String> parents = adjList.getOrDefault(current, Collections.emptyList());
+                for (String parent : parents) {
+                    if (othervisited.contains(parent)) {
+                        return parent;
+
+                    }
+                    if (visited.add(parent)) {
+                        queue.offer(parent);
+                    }
+                }
+            }
+            return null;
+        }
     }
+
+    private String findLatestCommonAncestor(String commit1, String commit2) {
+        CommitGraph graph = new CommitGraph();
+        List<String> commitsNames = plainFilenamesIn(COMMITS_DIR);
+        for (String commit : commitsNames) {
+            Commit c = getCommit(commit);
+            List<String> parents = new ArrayList<>();
+            String parent1 = c.getParent1();
+            String parent2 = c.getParent2();
+            if (parent1 != null) parents.add(parent1);
+            if (parent2 != null) parents.add(parent2);
+            graph.addCommit(commit, parents);
+        }
+        return graph.findLatestCommonAncestor(commit1, commit2);
+    }
+
+    public void merge(String branch) {
+        boolean conflictFlag = false;
+        if (!addStage.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        } else if (!hasBranch(branch)) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        } else if (branch.equals(currentBranch)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        Commit currentCommit = getCurrentCommit();
+        Commit branchCommit = getBranchCommit(branch);
+        String ancestor = findLatestCommonAncestor(currentCommit.toHash(), branchCommit.toHash());
+
+        if (ancestor.equals(branchCommit.toHash())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        } else if (ancestor.equals(currentBranch)) {
+            checkoutBranch(branch);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        Commit splitCommit = getCommit(ancestor);
+
+        List<String> totalFiles = new ArrayList<>();
+
+        totalFiles.addAll(branchCommit.getFiles().keySet());
+        totalFiles.addAll(currentCommit.getFiles().keySet());
+        totalFiles.addAll(splitCommit.getFiles().keySet());
+
+        for (String file : totalFiles) {
+            boolean isInSplit = splitCommit.hasFile(file);
+            boolean isInCurrent = currentCommit.hasFile(file);
+            boolean isInBranch = branchCommit.hasFile(file);
+            //4
+            if (!isInSplit && isInCurrent && !isInBranch) continue;
+            //5
+            if (!isInSplit && !isInCurrent && isInBranch) {
+                checkoutFileHelper(branchCommit, file);
+                addStage.put(file, branchCommit.getFiles().get(file));
+                continue;
+            }
+            if (isInSplit) {
+                String fileHashInSplit = splitCommit.getFiles().get(file);
+                boolean isModifiedInCurrent = isModified(currentCommit, file,fileHashInSplit);
+                boolean isModifiedInBranch = isModified(branchCommit, file, fileHashInSplit);
+                if (!isInCurrent && !isInBranch) continue;
+                if (isInCurrent && isInBranch) {
+                    //1
+                    if (isModifiedInBranch && !isModifiedInCurrent) {
+                        checkoutFileHelper(branchCommit, file);
+                        addStage.put(file, branchCommit.getFiles().get(file));
+                        continue;
+                    }
+                    //2
+                    if (!isModifiedInBranch && isModifiedInCurrent) {
+                        continue;
+                    }
+                    //8
+                    if (isModifiedInBranch && isModifiedInCurrent) {
+                        String fileHashInBranch = branchCommit.getFiles().get(file);
+                        String fileHashInCurrent = currentCommit.getFiles().get(file);
+                        if (fileHashInCurrent.equals(fileHashInBranch)) continue;
+                        File CWDFile = join(CWD,file);
+                        File currentFile = join(BLOBS_DIR, fileHashInCurrent);
+                        File branchFile = join(BLOBS_DIR, fileHashInBranch);
+                        writeContents(CWDFile, "<<<<<<< HEAD\n", readContentsAsString(currentFile),
+                                "=======\n", readContentsAsString(branchFile), ">>>>>>>");
+                        addFile(file);
+                        conflictFlag = true;
+                    }
+                }
+                //7
+                if (!isInCurrent && isInBranch) {
+                    removeStage.add(file);
+                    continue;
+                }
+                //6
+                if (isInCurrent && !isInBranch) {
+                    if (isModifiedInBranch && !isModifiedInCurrent) {
+                        checkoutFileHelper(branchCommit, file);
+                        removeStage.add(file);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        commitHelper("Merged " + branch + " into " + currentBranch + ".", currentCommit, branchCommit);
+        if (conflictFlag) {
+            System.out.println("Encountered a merge conflict.");
+        }
+    }
+
+    private boolean isModified(Commit commit,String fileName, String fileHash) {
+        return commit.hasVersion(fileName, fileHash);
+    }
+
 }
