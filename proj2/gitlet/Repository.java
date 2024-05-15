@@ -44,15 +44,16 @@ public class Repository {
 
     public static final File BLOBS_MAP = join(GITLET_DIR, "blobs_map");
 
+    @SuppressWarnings("unchecked")
     public Repository() {
         if (GITLET_DIR.exists()) {
-            currentBranch = readObject(HEAD, String.class);
+            currentBranch = readContentsAsString(HEAD);
             loadStageArea();
             blobs = readObject(BLOBS_MAP, LinkedList.class);
         }
     }
 
-
+    @SuppressWarnings("unchecked")
     private void loadStageArea() {
         addStage = readObject(ADD_STAGE, HashMap.class);
         removeStage = readObject(REMOVE_STAGE, LinkedList.class);
@@ -112,6 +113,7 @@ public class Repository {
 
     private void setHEAD(String name) {
         currentBranch = name;
+        writeContents(HEAD, name);
     }
 
     private Commit getCurrentCommit() {
@@ -386,7 +388,7 @@ public class Repository {
             System.exit(0);
         }
         checkoutBranchHelper(getBranchCommit(branch).toHash());
-        currentBranch = branch;
+        setHEAD(branch);
     }
 
     private void checkoutBranchHelper(String ID) {
