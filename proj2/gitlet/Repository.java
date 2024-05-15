@@ -21,7 +21,7 @@ public class Repository {
      */
 
     LinkedList<String> blobs = new LinkedList<>();
-    String currentBranch;
+    String currentBranch = "";
     HashMap<String, String> addStage = new HashMap<>();
     LinkedList<String> removeStage = new LinkedList<>();
 
@@ -70,14 +70,26 @@ public class Repository {
             GITLET_DIR.mkdir();
             INDEX_DIR.mkdir();
             BRANCHES_DIR.mkdir();
+            COMMITS_DIR.mkdir();
+            BLOBS_DIR.mkdir();
             Commit initial = new Commit("initial commit", new Date(0) , new TreeMap<>(), "", "");
-            writeCommit(initial);
             String hash = writeCommit(initial);
             setUpBranch("master", hash);
             currentBranch = "master";
+            setHEAD("master");
         } else {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
         }
+    }
+
+    public void exit() {
+        saveStageArea();
+        saveBlobMap();
+        setHEAD(currentBranch);
+    }
+
+    private void saveBlobMap() {
+        writeObject(BLOBS_MAP, blobs);
     }
 
     public String writeCommit(Commit commit) {
@@ -175,7 +187,7 @@ public class Repository {
             files.remove(file);
         }
         Commit newCommit = new Commit(message, new Date(), files, parent1, parent2);
-        String commitID = newCommit.toHash();
+        String commitID = writeCommit(newCommit);
         setUpBranch(currentBranch, commitID);
         addStage.clear();
         removeStage.clear();
@@ -244,14 +256,14 @@ public class Repository {
     }
 
     public void global_log() {
-        LinkedList<String> files = (LinkedList<String>) plainFilenamesIn(COMMITS_DIR);
+        List<String> files = plainFilenamesIn(COMMITS_DIR);
         for (String file : files) {
             printCommit(getCommit(file));
         }
     }
 
     public void find(String message) {
-        LinkedList<String> files = (LinkedList<String>) plainFilenamesIn(COMMITS_DIR);
+        List<String> files = plainFilenamesIn(COMMITS_DIR);
         int flag = 0;
         for (String file : files) {
             Commit p = getCommit(file);
@@ -268,7 +280,7 @@ public class Repository {
 
     private void printBranches() {
         System.out.println("=== Branches ===");
-        LinkedList<String> branches = (LinkedList<String>) plainFilenamesIn(BRANCHES_DIR);
+        List<String> branches = plainFilenamesIn(BRANCHES_DIR);
         for (String branch : branches) {
             if (branch.equals(currentBranch)) {
                 System.out.print("*");
@@ -343,7 +355,7 @@ public class Repository {
 
 
     private String hasCommitAbbreviate(String ID) {
-        LinkedList<String> commits = (LinkedList<String>) plainFilenamesIn(COMMITS_DIR);
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
         for (String commit : commits) {
             if (commit.substring(0, 7).equals(ID.substring(0, 7))) {
                 return commit;
@@ -393,7 +405,7 @@ public class Repository {
 
     private void checkoutBranchHelper(String ID) {
         Commit commit = getCommit(ID);
-        LinkedList<String> files = (LinkedList<String>) plainFilenamesIn(CWD);
+        List<String> files = plainFilenamesIn(CWD);
         for (String file : files) {
             File f = join(CWD, file);
             if (!isTrackedByCurrentCommit(file, f)) {

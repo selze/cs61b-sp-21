@@ -18,6 +18,7 @@ public class Main {
             case "init": {
                 Repository repo = new Repository();
                 repo.setUpRepository();
+                repo.exit();
                 break;
             }
             case "add": {
@@ -25,6 +26,7 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.addFile(args[1]);
+                repo.exit();
                 break;
             }
             case "commit": {
@@ -32,12 +34,14 @@ public class Main {
                 validateNumArgs(args, 2, "Please enter a commit message.");
                 Repository repo = new Repository();
                 repo.commit(args[1]);
+                repo.exit();
                 break;
             }
             case "log": {
                 Repository.checkRepositroy();
                 Repository repo = new Repository();
                 repo.log();
+                repo.exit();
                 break;
             }
             case "rm": {
@@ -45,12 +49,14 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.remove(args[1]);
+                repo.exit();
                 break;
             }
             case "global-log": {
                 Repository.checkRepositroy();
                 Repository repo = new Repository();
                 repo.global_log();
+                repo.exit();
                 break;
             }
             case "find": {
@@ -58,12 +64,14 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.find(args[1]);
+                repo.exit();
                 break;
             }
             case "status": {
                 Repository.checkRepositroy();
                 Repository repo = new Repository();
                 repo.status();
+                repo.exit();
                 break;
             }
             case "checkout": {
@@ -79,6 +87,7 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
+                repo.exit();
                 break;
             }
             case "branch": {
@@ -86,6 +95,7 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.branch(args[1]);
+                repo.exit();
                 break;
             }
             case "rm-branch": {
@@ -93,6 +103,7 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.rm_branch(args[1]);
+                repo.exit();
                 break;
             }
             case "reset": {
@@ -100,12 +111,14 @@ public class Main {
                 validateNumArgs(args, 2, "Incorrect operands.");
                 Repository repo = new Repository();
                 repo.reset(args[1]);
+                repo.exit();
                 break;
             }
             case "merge": {
                 Repository.checkRepositroy();
                 Repository repo = new Repository();
                 repo.merge(args[1]);
+                repo.exit();
                 break;
             }
             default:
