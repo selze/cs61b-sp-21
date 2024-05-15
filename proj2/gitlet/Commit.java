@@ -44,7 +44,7 @@ public class Commit implements Serializable {
         this.files = files;
         this.parent1 = parent1;
         this.parent2 = parent2;
-        this.ID = sha1(message, timestamp, files.values().toString(), parent1, parent2);
+        this.ID = sha1(message, timestamp, serialize(files), parent1, parent2);
     }
     public String getMessage() {
         return message;

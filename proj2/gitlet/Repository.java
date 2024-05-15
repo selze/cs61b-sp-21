@@ -70,7 +70,7 @@ public class Repository {
             GITLET_DIR.mkdir();
             INDEX_DIR.mkdir();
             BRANCHES_DIR.mkdir();
-            Commit initial = new Commit("initial commit", new Date(0) , new TreeMap<>(), null, null);
+            Commit initial = new Commit("initial commit", new Date(0) , new TreeMap<>(), "", "");
             writeCommit(initial);
             String hash = writeCommit(initial);
             setUpBranch("master", hash);
@@ -163,7 +163,7 @@ public class Repository {
     private void commitHelper(String message, Commit commit1, Commit commit2) {
         TreeMap<String, String> files = commit1.getFiles();
         String parent1 = commit1.toHash();
-        String parent2 = null;
+        String parent2 = "";
         if (commit2 != null) {
             files.putAll(commit2.getFiles());
             parent2 = commit2.toHash();
@@ -208,7 +208,7 @@ public class Repository {
     private void printCommit(Commit commit) {
         System.out.println("===");
         System.out.println("commit " + commit.toHash());
-        if (commit.getParent2() != null) {
+        if (!commit.getParent2().isEmpty()) {
             System.out.println("Merge: " + commit.getParent1().substring(0, 7) + " " + commit.getParent2().substring(0, 7));
         }
         System.out.println("Date: " + commit.getTimestamp());
@@ -220,7 +220,7 @@ public class Repository {
         Commit p = getCurrentCommit();
         String parentID = p.getParent1();
         printCommit(p);
-        while(parentID != null) {
+        while(!parentID.isEmpty()) {
             File f = join(COMMITS_DIR, parentID);
             p = readObject(f, Commit.class);
             parentID = p.getParent1();
@@ -465,7 +465,6 @@ public class Repository {
                 for (String parent : parents) {
                     if (othervisited.contains(parent)) {
                         return parent;
-
                     }
                     if (visited.add(parent)) {
                         queue.offer(parent);
@@ -484,8 +483,8 @@ public class Repository {
             List<String> parents = new ArrayList<>();
             String parent1 = c.getParent1();
             String parent2 = c.getParent2();
-            if (parent1 != null) parents.add(parent1);
-            if (parent2 != null) parents.add(parent2);
+            if (!parent1.isEmpty()) parents.add(parent1);
+            if (!parent2.isEmpty()) parents.add(parent2);
             graph.addCommit(commit, parents);
         }
         return graph.findLatestCommonAncestor(commit1, commit2);
