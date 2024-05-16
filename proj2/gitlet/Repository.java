@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.time.Year;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static gitlet.Utils.*;
 
@@ -162,6 +163,23 @@ public class Repository {
         blobs.add(fileHash);
     }
 
+    public void remove(String name) {
+        File f = join(CWD, name);
+        boolean isTracked = isTrackedByCurrentCommit(name, f);
+        boolean isStaged = addStage.containsKey(name);
+        if (isStaged) {
+            addStage.remove(name);
+        }
+        if (isTracked) {
+            restrictedDelete(f);
+            removeStage.add(name);
+        }
+        if (!isTracked && !isStaged) {
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
+        }
+    }
+
 
     public void commit(String message) {
         if (addStage.isEmpty() && removeStage.isEmpty()) {
@@ -201,21 +219,7 @@ public class Repository {
         return headCommit.hasVersion(name, fileID);
     }
 
-    public void remove(String name) {
-        File CWDFile = join(CWD, name);
-        Boolean flag = isTrackedByCurrentCommit(name, CWDFile);
-        if (CWDFile.exists() && flag) {
-            addStage.remove(name);
-            removeStage.add(name);
-            restrictedDelete(CWDFile);
-        } else if (!addStage.containsKey(name) && !flag) {
-            System.out.println("No reason to remove the file");
-            System.exit(0);
-        } else {
-            addStage.remove(name);
-        }
-        saveStageArea();
-    }
+
 
     private void printCommit(Commit commit) {
         System.out.println("===");
@@ -292,7 +296,8 @@ public class Repository {
 
     private void printStagedFiles() {
         System.out.println("=== Staged Files ===");
-        for (String file : addStage.keySet()) {
+        List<String> sortedKeys = addStage.keySet().stream().sorted().collect(Collectors.toList());
+        for (String file : sortedKeys) {
             System.out.println(file);
         }
         System.out.println();
@@ -300,10 +305,19 @@ public class Repository {
 
     private void printRemovedFiles() {
         System.out.println("=== Removed Files ===");
+        List<String> sorted = removeStage.stream().sorted().collect(Collectors.toList());
         for (String file : removeStage) {
             System.out.println(file);
         }
         System.out.println();
+    }
+
+    private void printModifiedButNotStaged() {
+        System.out.println("=== Modifications Not Staged For Commit ===");
+    }
+
+    private void printUntrackedFiles() {
+        System.out.println("=== Untracked Files ===");
     }
 
 
@@ -311,6 +325,8 @@ public class Repository {
         printBranches();
         printStagedFiles();
         printRemovedFiles();
+        printModifiedButNotStaged();
+        printUntrackedFiles();
         System.out.println();
     }
 
