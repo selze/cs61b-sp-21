@@ -152,7 +152,9 @@ public class Repository {
             addStage.put(name, fileHash);
             addBlob(fileToBeAdded, fileHash);
         }
-        saveStageArea();
+        if (removeStage.contains(name)) {
+            removeStage.remove(name);
+        }
     }
 
     /** add the blob to the blob directory */
@@ -165,7 +167,7 @@ public class Repository {
 
     public void remove(String name) {
         File f = join(CWD, name);
-        boolean isTracked = isTrackedByCurrentCommit(name, f);
+        boolean isTracked = getCurrentCommit().hasFile(name);
         boolean isStaged = addStage.containsKey(name);
         if (isStaged) {
             addStage.remove(name);
@@ -209,7 +211,6 @@ public class Repository {
         setUpBranch(currentBranch, commitID);
         addStage.clear();
         removeStage.clear();
-        saveStageArea();
     }
 
 
