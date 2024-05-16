@@ -217,7 +217,7 @@ public class Repository {
     private boolean isTrackedByCurrentCommit(String name, File file) {
         String fileID = getFileHash(file);
         Commit headCommit = getCurrentCommit();
-        return headCommit.hasVersion(name, fileID);
+        return headCommit.hasFile(name);
     }
 
 
