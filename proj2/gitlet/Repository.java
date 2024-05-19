@@ -399,6 +399,8 @@ public class Repository {
         }
         Commit commit = getCommit(commitID);
         checkoutFileHelper(commit, name);
+        addStage.remove(name);
+        removeStage.remove(name);
     }
 
     private void checkoutFileHelper(Commit commit, String name) {
