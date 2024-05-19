@@ -425,12 +425,23 @@ public class Repository {
         setHEAD(branch);
     }
 
+    //check if a file in CWD is tracked by current branch
+    private boolean isTrackedByCurrentBranch(String name) {
+        Commit p = getCurrentCommit();
+        String parent1 = p.toHash();
+        while (!parent1.isEmpty()) {
+            for (String file : p.getFiles().keySet()) {
+                if (file.equals(name)) return true;
+            }
+        }
+        return false;
+    }
+
     private void checkoutBranchHelper(String ID) {
         Commit commit = getCommit(ID);
         List<String> files = plainFilenamesIn(CWD);
         for (String file : files) {
-            File f = join(CWD, file);
-            if (!isTrackedByCurrentCommit(file, f)) {
+            if (!isTrackedByCurrentBranch(file)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
@@ -446,7 +457,6 @@ public class Repository {
         }
         addStage.clear();
         removeStage.clear();
-        saveStageArea();
     }
 
     public void reset(String ID) {
