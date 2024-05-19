@@ -169,16 +169,16 @@ public class Repository {
         File f = join(CWD, name);
         boolean isTracked = getCurrentCommit().hasFile(name);
         boolean isStaged = addStage.containsKey(name);
+        if (!isTracked && !isStaged) {
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
+        }
         if (isStaged) {
             addStage.remove(name);
         }
         if (isTracked) {
             restrictedDelete(f);
             removeStage.add(name);
-        }
-        if (!isTracked && !isStaged) {
-            System.out.println("No reason to remove the file.");
-            System.exit(0);
         }
     }
 
@@ -187,6 +187,9 @@ public class Repository {
         if (addStage.isEmpty() && removeStage.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
+        }
+        if (message.equals("")) {
+            System.out.println("Please enter a commit message.");
         }
         Commit previousCommit = getCurrentCommit();
         commitHelper(message, previousCommit, null);
@@ -315,10 +318,12 @@ public class Repository {
 
     private void printModifiedButNotStaged() {
         System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
     }
 
     private void printUntrackedFiles() {
         System.out.println("=== Untracked Files ===");
+        System.out.println();
     }
 
 
